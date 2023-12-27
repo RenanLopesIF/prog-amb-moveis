@@ -1,0 +1,32 @@
+table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+
+tr:nth-child(even) {
+    background-color: #dddddd;
+}
+
+tr td:nth-child(3) {
+    cursor: pointer;
+}
+
+.td-age{
+    display: flex;
+    justify-content: space-between;
+    padding-right: 8%;
+}
+
+.minus-plus{
+    display: flex;
+    width: 50%;
+    justify-content: space-between;
+    background: rgb(167, 18, 18);
+}
