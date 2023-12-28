@@ -5,82 +5,70 @@ import {
   ImageBackground,
   TextInput,
   VirtualizedList,
+  TouchableOpacity,
 } from 'react-native';
 import { Text, Title } from '../../components/StyledText';
 import RNSButton from '../../components/Button';
 import AS from '@react-native-async-storage/async-storage';
+import { ENDPOINT } from '../../../App';
+import axios from 'axios';
+import Icon from 'react-native-vector-icons/Entypo';
 
 export default function HomeScreen({ isExtended, setIsExtended, ...props }) {
+  const [userData, setUserData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [newMessage, setNewMessage] = useState('');
+  const [messages, setMessages] = useState([]);
 
-  useEffect(() => {
-    // AS.clear();
-  }, []);
+  async function getMessages() {
+    const res = await axios.get(`${ENDPOINT}/messages`);
+    setMessages(res.data);
+  }
+
+  async function sendMessage() {
+    const msg = newMessage.trim();
+    if (msg === '') return;
+
+    try {
+      console.log(userData.id);
+      const res = await axios.post(`${ENDPOINT}/messages/inserir`, {
+        autorId: userData.id,
+        message: msg,
+      });
+      console.log(res.data);
+      getMessages();
+    } catch (error) {}
+
+    setNewMessage('');
+  }
+
+  async function deleteMessages(msgId) {
+    await axios.delete(`${ENDPOINT}/messages/deletar`, {
+      data: {
+        messageId: msgId,
+      },
+    });
+    getMessages();
+  }
 
   useLayoutEffect(() => {
     (async () => {
-      const userData = await AS.getItem('userData');
-      if (!userData) {
-        props.navigation.navigate('Configurações');
-      } else {
+      const res = await AS.getItem('userData');
+      const parsedRed = JSON.parse(res);
+
+      if (parsedRed) {
+        console.log(parsedRed, 'f');
+        setUserData(parsedRed);
         setIsLoading(false);
+      } else {
+        props.navigation.navigate('Configurações');
       }
     })();
   }, []);
 
-  function sendMessage() {
-    if (newMessage.trim() === '') return;
-    console.log(newMessage);
-    setNewMessage('');
-  }
-
-  const currentId = 1;
-  const chat = [
-    {
-      cargo: 'Motorista',
-      autor: 'Renan',
-      autorId: 1,
-      message:
-        'Onibus hoje saindo da praça da matriz para o instituto federal do norte de minas gerais em araçuaí',
-    },
-    {
-      cargo: 'Passageiro',
-      autor: 'André Carvalho',
-      autorId: 2,
-      message: 'Home 2',
-    },
-    {
-      cargo: 'Passageiro',
-      autor: 'Rômulo Santos',
-      autorId: 3,
-      message: 'Home 3',
-    },
-    { cargo: 'Motorista', autor: 'Maria', autorId: 4, message: 'Home 4' },
-    { cargo: 'Motorista', autor: 'Maria', autorId: 4, message: 'Home 4' },
-    { cargo: 'Motorista', autor: 'Maria', autorId: 4, message: 'Home 4' },
-    { cargo: 'Motorista', autor: 'Maria', autorId: 4, message: 'Home 4' },
-    { cargo: 'Motorista', autor: 'Maria', autorId: 4, message: 'Home 4' },
-    { cargo: 'Motorista', autor: 'Maria', autorId: 4, message: 'Home 4' },
-    { cargo: 'Motorista', autor: 'Maria', autorId: 4, message: 'Home 4' },
-    { cargo: 'Motorista', autor: 'Maria', autorId: 4, message: 'Home 4' },
-    { cargo: 'Motorista', autor: 'Maria', autorId: 4, message: 'Home 4' },
-    { cargo: 'Motorista', autor: 'Maria', autorId: 4, message: 'Home 4' },
-    { cargo: 'Motorista', autor: 'Maria', autorId: 4, message: 'Home 4' },
-    { cargo: 'Motorista', autor: 'Maria', autorId: 4, message: 'Home 4' },
-    { cargo: 'Motorista', autor: 'Maria', autorId: 4, message: 'Home 4' },
-    { cargo: 'Motorista', autor: 'Maria', autorId: 4, message: 'Home 4' },
-    { cargo: 'Motorista', autor: 'Maria', autorId: 4, message: 'Home 4' },
-    { cargo: 'Motorista', autor: 'Maria', autorId: 4, message: 'Home 4' },
-    { cargo: 'Motorista', autor: 'Maria', autorId: 4, message: 'Home 4' },
-    { cargo: 'Motorista', autor: 'Maria', autorId: 4, message: 'Home 4' },
-    {
-      cargo: 'Motorista',
-      autor: 'Renan',
-      autorId: 1,
-      message: 'Home Final do texto ',
-    },
-  ];
+  useEffect(() => {
+    getMessages();
+  }, []);
 
   if (isLoading) return <></>;
 
@@ -94,7 +82,7 @@ export default function HomeScreen({ isExtended, setIsExtended, ...props }) {
         <VirtualizedList
           inverted
           style={styles.scrollView}
-          data={chat}
+          data={messages}
           getItemCount={data => data.length}
           getItem={(data, idx) => data[idx]}
           keyExtractor={(item, idx) => idx}
@@ -103,25 +91,35 @@ export default function HomeScreen({ isExtended, setIsExtended, ...props }) {
               style={{
                 ...styles.messageContainer,
                 justifyContent:
-                  currentId === item.autorId ? 'flex-end' : 'flex-start',
+                  userData.id === item.autorId ? 'flex-end' : 'flex-start',
               }}
             >
               <View
                 style={
-                  currentId === item.autorId
+                  userData.id === item.autorId
                     ? styles.messageSend
                     : styles.messageRecived
                 }
               >
                 <Title
                   size={12}
-                  color={item.cargo == 'Motorista' ? '#eb8e1c' : '#1c76eb'}
+                  color={item.autorRole == 'Motorista' ? '#eb8e1c' : '#1c76eb'}
                 >
-                  {item.autor} - {item.cargo}
+                  {item.autorName} - {item.autorRole}
                 </Title>
                 <Text size={16} color="black" bold paddingLeft={0}>
                   {item.message}
                 </Text>
+                <TouchableOpacity
+                  style={styles.deleteMsg}
+                  onPress={() => {
+                    deleteMessages(item.id);
+                  }}
+                >
+                  <Text>
+                    <Icon name="trash" size={12} color="red" />
+                  </Text>
+                </TouchableOpacity>
               </View>
             </View>
           )}
@@ -192,7 +190,7 @@ const styles = StyleSheet.create({
     width: 'min-content',
     backgroundColor: '#87fa9e',
     color: '#000',
-    borderTopLeftRadius: 10,
+    // borderTopLeftRadius: 10,
     borderBottomLeftRadius: 10,
   },
   inputArea: {
@@ -218,5 +216,19 @@ const styles = StyleSheet.create({
   scrollView: {
     marginBottom: 10,
     marginTop: 10,
+  },
+  deleteMsg: {
+    position: 'absolute',
+    left: -20,
+    top: 0,
+    height: 20,
+    width: 20,
+    backgroundColor: 'white',
+    // width: '100%',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderTopLeftRadius: 4,
+    borderBottomLeftRadius: 4,
   },
 });

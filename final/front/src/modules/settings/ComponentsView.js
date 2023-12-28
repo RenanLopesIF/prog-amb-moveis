@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, View, Text, ScrollView } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import { colors, fonts } from '../../styles';
@@ -27,9 +27,10 @@ export default function ComponentsScreen(props) {
     }));
   }
 
-  async function saveConfigOnStorage() {
-    const nData = JSON.stringify({ ...(userData || {}), ...config });
+  async function saveConfigOnStorage(newConfig) {
+    const nData = JSON.stringify({ ...(userData || {}), ...newConfig });
     await AS.setItem('userData', nData);
+    console.log(newConfig);
   }
 
   async function createUserOnDatabase() {
@@ -49,6 +50,7 @@ export default function ComponentsScreen(props) {
     const res = await axios.put(`${ENDPOINT}/usuario/atualizar`, {
       role: config.role,
       name: config.name,
+      userId: userData.id,
     });
 
     return res;
@@ -57,10 +59,15 @@ export default function ComponentsScreen(props) {
   async function save() {
     if (config.name.length < 2) return;
 
-    if (userData) await updateUserOnDatabase();
-    else await createUserOnDatabase();
+    const newConf = { ...config };
 
-    await saveConfigOnStorage();
+    if (userData) await updateUserOnDatabase();
+    else {
+      const res = await createUserOnDatabase();
+      newConf.id = res.insertId;
+    }
+
+    await saveConfigOnStorage(newConf);
     props.navigation.navigate('Chat');
   }
 
