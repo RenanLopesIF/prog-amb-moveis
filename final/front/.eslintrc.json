@@ -1,0 +1,84 @@
+{
+  "env": {
+    "browser": true,
+    "es2021": true
+  },
+  "extends": [
+    "plugin:react/recommended",
+    "airbnb",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:prettier/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
+  "plugins": ["react", "@typescript-eslint", "react-hooks", "prettier"],
+  "rules": {
+    "@typescript-eslint/ban-ts-comment": "off",
+    "no-underscore-dangle": "off",
+    "no-inner-declarations": "off",
+    "no-return-await": "off",
+    "react/jsx-no-bind": "off",
+    "no-console": "off",
+    "consistent-return": "off",
+    "import/no-unresolved": "off",
+    "@typescript-eslint/no-var-requires": "off",
+    "react/no-unstable-nested-components": "off",
+    "@typescript-eslint/ban-types": "off",
+    "camelcase": "off",
+    "no-shadow": "off",
+    "class-methods-use-this": "off",
+    "@typescript-eslint/no-unused-vars": "off",
+    "react/require-default-props": "off",
+    "no-nested-ternary": "off",
+    "react/jsx-props-no-spreading": "off",
+    "react/jsx-no-constructed-context-values": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "import/prefer-default-export": "off",
+    "no-promise-executor-return": "off",
+    "no-plusplus": "off",
+
+    "prettier/prettier": [
+      "error",
+      {
+        "endOfLine": "auto"
+      }
+    ],
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn",
+    "react/jsx-filename-extension": [
+      1,
+      {
+        "extensions": [".tsx"]
+      }
+    ],
+    "import/extensions": [
+      "error",
+      "ignorePackages",
+      {
+        "ts": "never",
+        "tsx": "never"
+      }
+    ],
+    "no-use-before-define": "off",
+    "@typescript-eslint/no-use-before-define": ["error"],
+    "react/react-in-jsx-scope": "off"
+  },
+  "ignorePatterns": [
+    "/amplify/**/*.js",
+    "/amplify/**/*.ts",
+    "/__tests__/**/*.tsx",
+    "metro.config.js",
+    "/src/generated/*.ts"
+  ],
+  "settings": {
+    "import/resolver": {
+      "typescript": {}
+    }
+  }
+}
