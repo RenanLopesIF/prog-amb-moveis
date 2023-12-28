@@ -43,10 +43,10 @@ function CustomDrawerContent(props) {
         label={() => (
           <View style={styles.menuLabelFlex}>
             <Image style={{ width: 20, height: 20 }} source={iconSettings} />
-            <Text style={styles.menuTitle}>Settings</Text>
+            <Text style={styles.menuTitle}>Configurações</Text>
           </View>
         )}
-        // onPress={() => props.navigation.navigate('Calendar')}
+        onPress={() => props.navigation.navigate('Configurações')}
       />
     </DrawerContentScrollView>
   );
