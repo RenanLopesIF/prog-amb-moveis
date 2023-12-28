@@ -9,6 +9,8 @@ import { store, persistor } from './src/redux/store';
 
 import AppView from './src/modules/AppViewContainer';
 
+export const ENDPOINT = 'http://192.168.50.224:3003';
+
 export default function App() {
   return (
     <Provider store={store}>

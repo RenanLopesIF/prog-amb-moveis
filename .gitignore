@@ -4,3 +4,4 @@ Marilene
 node_modules/
 .gradle
 testes/
+android/app/build/

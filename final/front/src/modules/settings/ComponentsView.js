@@ -1,22 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, Text, ScrollView } from 'react-native';
 import { useRoute } from '@react-navigation/native';
-
-import Icon from 'react-native-vector-icons/Entypo';
 import { colors, fonts } from '../../styles';
 
 import { Button, RadioGroup, Dropdown, TextInput } from '../../components';
 import AS from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import { ENDPOINT } from '../../../App';
 
 export default function ComponentsScreen(props) {
   const route = useRoute();
   const [userData, setUserData] = useState(null);
-  const [config, setConfig] = useState({ name: '', cargo: 'Passageiro' });
+  const [config, setConfig] = useState({ name: '', role: 'Passageiro' });
 
-  function handleCargo(index) {
+  function handleRole(index) {
     setConfig(prev => ({
       ...prev,
-      cargo: index === 0 ? 'Passageiro' : 'Motorista',
+      role: index === 0 ? 'Passageiro' : 'Motorista',
     }));
   }
 
@@ -32,10 +32,35 @@ export default function ComponentsScreen(props) {
     await AS.setItem('userData', nData);
   }
 
-  async function saveConfigOnDatabase() {}
+  async function createUserOnDatabase() {
+    try {
+      const { data } = await axios.post(`${ENDPOINT}/usuario/inserir`, {
+        name: config.name,
+        role: config.role,
+      });
+      setConfig(prev => ({ ...prev, id: data.insertId }));
+      return data;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async function updateUserOnDatabase() {
+    const res = await axios.put(`${ENDPOINT}/usuario/atualizar`, {
+      role: config.role,
+      name: config.name,
+    });
+
+    return res;
+  }
 
   async function save() {
-    await Promise.all([saveConfigOnDatabase, saveConfigOnStorage]);
+    if (config.name.length < 2) return;
+
+    if (userData) await updateUserOnDatabase();
+    else await createUserOnDatabase();
+
+    await saveConfigOnStorage();
     props.navigation.navigate('Chat');
   }
 
@@ -46,7 +71,7 @@ export default function ComponentsScreen(props) {
 
       setUserData(parsedRed);
       if (parsedRed) {
-        setConfig({ ...config, name: parsedRed.name, cargo: parsedRed.cargo });
+        setConfig({ ...config, name: parsedRed.name, role: parsedRed.role });
       }
     })();
   }, []);
@@ -77,8 +102,8 @@ export default function ComponentsScreen(props) {
         <RadioGroup
           style={styles.demoItem}
           items={['Passageiro', 'Motorista']}
-          selectedIndex={config.cargo == 'Passageiro' ? 0 : 1}
-          onChange={handleCargo}
+          selectedIndex={config.role == 'Passageiro' ? 0 : 1}
+          onChange={handleRole}
         />
       </View>
 

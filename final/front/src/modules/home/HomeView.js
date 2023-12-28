@@ -2,15 +2,10 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
   StyleSheet,
   View,
-  TouchableOpacity,
   ImageBackground,
-  ScrollView,
-  ScrollViewComponent,
   TextInput,
   VirtualizedList,
 } from 'react-native';
-
-import { fonts, colors } from '../../styles';
 import { Text, Title } from '../../components/StyledText';
 import RNSButton from '../../components/Button';
 import AS from '@react-native-async-storage/async-storage';
